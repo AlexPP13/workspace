@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-codium
+data:
+  continue: |
+    name: Local Assistant
+    version: 1.0.0
+    schema: v1
+    models:
+      - name: Llama 3.2
+        provider: ollama
+        model: llama3.2:latest
+        apiBase: http://workspace-ollama-pod:11434
+        roles:
+          - chat
+          - edit
+          - apply
+      - name: Qwen2.5-Coder 1.5B
+        provider: ollama
+        model: qwen2.5-coder:1.5b-base
+        apiBase: http://workspace-ollama-pod:11434
+        roles:
+          - autocomplete
+      - name: Nomic Embed
+        provider: ollama
+        model: nomic-embed-text:latest
+        apiBase: http://workspace-ollama-pod:11434
+        roles:
+          - embed
+    context:
+      - provider: code
+      - provider: docs
+      - provider: diff
+      - provider: terminal
+      - provider: problems
+      - provider: folder
+      - provider: codebase
+
+  git: |
+    [user]
+    email = abrasser@privacyperfect.com
+    name = Alex Brasser
+
+    [init]
+    defaultBranch = main
+
+    [safe]
+    directory = *
+  
+  codium: |
+    {
+      "editor.fontFamily": "Fira Code Retina",
+      "editor.fontLigatures": true,
+      "editor.formatOnSave": true,
+      "editor.inlineSuggest.syntaxHighlightingEnabled": true,
+      "files.autoSave": "onWindowChange",
+      "workbench.colorTheme": "Default Dark Modern",
+      "workbench.startupEditor": "none",
+      "workbench.editor.enablePreview": false,
+      "workbench.layoutControl.enabled": false,
+      "redhat.telemetry.enabled": false,
+      "workbench.panel.defaultLocation": "left",
+      "explorer.confirmDragAndDrop": false,
+      "explorer.compactFolders": false,
+      "git.enableSmartCommit": true,
+      "terminal.integrated.tabs.enabled": false,
+      "terminal.integrated.cursorStyle": "underline",
+      "terminal.integrated.cursorBlinking": true,
+      "window.commandCenter": false,
+      "continue.telemetryEnabled": false,
+      "errorLens.messageEnabled": true,
+      "aws.telemetry": false,
+      "yaml.customTags": [
+        "!*"
+      ]
+    }
+
+  awz: |
+    [default]
+    region = eu-central-1
