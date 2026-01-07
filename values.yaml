@@ -5,3 +5,4 @@ services:
   - redis-insight
   - open-webui
   - ollama
+  - pp3-frontend

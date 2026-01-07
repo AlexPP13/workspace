@@ -164,3 +164,17 @@ data:
         set $upstream http://workspace-ollama-pod:11434;
       }
     }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name pp3-frontend.workspace.localhost
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-pp3-frontend-pod:8092;
+      }
+    }
