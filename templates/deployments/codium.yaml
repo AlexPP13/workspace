@@ -98,6 +98,7 @@ spec:
               mountPath: /home/codium/.aws/config
               subPath: awz
               readOnly: true
+
           livenessProbe:
             httpGet:
               path: /
