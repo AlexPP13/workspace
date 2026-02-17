@@ -4,4 +4,6 @@ deployments:
     image: localhost
     pullPolicy: IfNotPresent
   volumes:
-    - workspace-pp3-frontend
+    - pp-pp3-frontend
+    - pp-isms-frontend
+    - wordpress-cms-wordpress
