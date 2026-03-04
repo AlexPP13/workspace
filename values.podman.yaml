@@ -2,7 +2,7 @@ environment: podman
 deployments:
   containers:
     image: localhost
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   volumes:
     - pp-pp3-frontend
     - pp-isms-frontend
