@@ -9,6 +9,7 @@ kube:
 # Run the deployment with Podman
 play:
 	@podman kube play --replace kube.yaml
+	@podman pod ls | grep ${NAMESPACE}
 
 # Stop the deployment with Podman
 down:
