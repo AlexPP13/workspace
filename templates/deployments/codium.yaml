@@ -16,7 +16,6 @@ spec:
       app: {{ .Release.Name }}-codium
   template:
     metadata:
-      annotations:
       labels:
         app: {{ .Release.Name }}-codium
         deployment: {{ .Release.Name }}-codium
@@ -26,8 +25,19 @@ spec:
         - name: volumes
           image: ghcr.io/alexstorm1313/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["bash","-c", "exec"]
-          args: ["rsync", "-avh", "--progress", "$HOME", "/mnt/{{ .Release.Name }}-codium-codium"]
+          command: ["rsync"]
+          args: ["-avh", "--ignore-existing", "--progress", "/home/codium/", "/mnt/{{ .Release.Name }}-codium-codium/"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
+        - name: extensions
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
+          command: ["codium"]
+          args: ["--user-data-dir","/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/data","--extensions-dir","/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/extensions","--install-extension","DEVSENSE.phptools-vscode", "--install-extension","openai.chatgpt"]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
