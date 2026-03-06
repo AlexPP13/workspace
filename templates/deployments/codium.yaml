@@ -30,6 +30,17 @@ spec:
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
+        - name: directories
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
+          command: ["mkdir", "-p"]
+          args: ["/mnt/{{ .Release.Name }}-codium-codium/.codex"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
         - name: extensions
           image: ghcr.io/alexstorm1313/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
