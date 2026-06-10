@@ -53,6 +53,9 @@ spec:
           {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/nginx:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: NGINX_RESOLVER
+              value: 10.89.0.1
           ports:
             - containerPort: 8080
               hostPort: 8080
@@ -125,6 +128,8 @@ spec:
                 path: codium.conf.template
               - key: dbgate.conf
                 path: dbgate.conf.template
+              - key: arangodb.conf
+                path: arangodb.conf.template
               - key: ollama.conf
                 path: ollama.conf.template
               - key: open-webui.conf
@@ -135,6 +140,10 @@ spec:
                 path: opencode.conf.template
               - key: redis-insight.conf
                 path: redis-insight.conf.template
+              - key: website.conf
+                path: website.conf.template
+              - key: pp.conf
+                path: pp.conf.template
 
         - name: {{ .Release.Name }}-gateway-nginx
           persistentVolumeClaim:

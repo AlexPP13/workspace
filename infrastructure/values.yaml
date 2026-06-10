@@ -6,12 +6,23 @@ deployments:
     pullPolicy: IfNotPresent
     # pullPolicy: Always
   volumes:
+    - wordpress-cms-wordpress
+    - pp-isms-frontend
+    - pp-isms-core
+    - pp-pp3-frontend
+    - pp-pp3-customservice
+    - pp-pp3-util
+    - wheel-of-misfortune
 services:
   - codium
   # - openclaw
   - opencode
-  # - dbgate
+  - dbgate
+  # - arangodb
   # - redis-insight
   # - open-webui
   # - ollama
   # - figma
+  - ssh-tunnel
+  - website
+  - pp

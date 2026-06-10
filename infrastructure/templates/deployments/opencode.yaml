@@ -63,7 +63,7 @@ spec:
               subPath: opencode.json
 
             - name: {{ .Release.Name }}-opencode-secrets
-              mountPath: /home/core/.codex/auth.json
+              mountPath: /home/core/.local/share/opencode/auth.json
               subPath: auth.json
 
           livenessProbe:

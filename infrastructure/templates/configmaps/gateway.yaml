@@ -20,6 +20,10 @@ data:
   dbgate.conf: |
 {{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}
 {{ end }}
+{{ if has "arangodb" .Values.services }}
+  arangodb.conf: |
+{{ .Files.Get "configs/gateway/arangodb.conf" | nindent 4 }}
+{{ end }}
 {{ if has "ollama" .Values.services }}
   ollama.conf: |
 {{ .Files.Get "configs/gateway/ollama.conf" | nindent 4 }}
@@ -39,6 +43,15 @@ data:
 {{ if has "redis-insight" .Values.services }}
   redis-insight.conf: |
 {{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}
+{{ end }}
+
+{{ if has "website" .Values.services }}
+  website.conf: |
+{{ .Files.Get "configs/gateway/website.conf" | nindent 4 }}
+{{ end }}
+{{ if has "pp" .Values.services }}
+  pp.conf: |
+{{ .Files.Get "configs/gateway/pp.conf" | nindent 4 }}
 {{ end }}
   
   default.conf: |

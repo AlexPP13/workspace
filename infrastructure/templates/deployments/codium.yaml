@@ -21,6 +21,7 @@ spec:
         app: {{ .Release.Name }}-codium
         deployment: {{ .Release.Name }}-codium
     spec:
+      {{ include "pod.hostAliases" . | indent 6 }}
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: mkdir
@@ -89,16 +90,16 @@ spec:
               mountPath: /home/core/.ssh/id_privatekey
               subPath: id_privatekey
               readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.wakatime.cfg
-              subPath: wakatime.cfg
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.codex/auth.json
-              subPath: auth.json
+            # - name: {{ .Release.Name }}-codium-secrets
+            #   mountPath: /home/core/.wakatime.cfg
+            #   subPath: wakatime.cfg
+            #   readOnly: true
+            # - name: {{ .Release.Name }}-codium-secrets
+            #   mountPath: /home/core/.codex/auth.json
+            #   subPath: auth.json
 
-            - name: development
-              mountPath: /home/core/Development:z
+            # - name: development
+            #   mountPath: /home/core/Development:z
 
           livenessProbe:
             httpGet:
@@ -128,8 +129,8 @@ spec:
             claimName: {{ . }}
         {{ end }}
 
-        - name: development
-          hostPath:
-            path: /home/alexstorm13/Development
-            type: Directory
+        # - name: development
+        #   hostPath:
+        #     path: /home/alexstorm13/Development
+        #     type: Directory
 {{ end }}

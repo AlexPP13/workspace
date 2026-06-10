@@ -6,11 +6,7 @@
     "figma": {
       "enabled": false,
       "type": "remote",
-      "url": "https://mcp.figma.com/mcp",
-      "oauth": {
-        "clientId": "",
-        "clientSecret": ""
-      }
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }

@@ -1,0 +1,44 @@
+{{ if has "arangodb" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-arangodb
+  labels:
+    app: {{ .Release.Name }}-arangodb
+  annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag","name": "arangodb:latest",},"fieldPath": "spec.template.spec.containers[?(@.name==\"arangodb\")].image"},]'
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-arangodb
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-arangodb
+        deployment: {{ .Release.Name }}-arangodb
+    spec:
+      {{ include "pod.securityContext" . | indent 6 }}
+      containers:
+        - name: arangodb
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/arangodb:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: ARANGO_RANDOM_ROOT_PASSWORD
+              value: 1
+            - name: ARANGO_URL
+              value: pp-ssh-tunnel-pod
+            - name: ARANGO_USER
+              value: admin
+            - name: ARANGO_PASSWORD
+              value: changemememe
+{{ end }}

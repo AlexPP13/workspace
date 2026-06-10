@@ -1,0 +1,48 @@
+{{ if has "ssh-tunnel" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ssh-tunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-ssh-tunnel
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-ssh-tunnel
+    spec:
+      {{ include "pod.hostAliases" . | indent 6 }}
+      containers:
+        - name: ssh-tunnel
+          image: docker.io/jnovack/autossh:latest
+          command:
+            - autossh
+            - "-M"
+            - "0"
+            - "-N"
+            - "-i"
+            - /root/.ssh/id_ed25519_tunnel
+            - "-o"
+            - "ExitOnForwardFailure=yes"
+            - "-o"
+            - "ServerAliveInterval=30"
+            - "-o"
+            - "ServerAliveCountMax=3"
+            - "-o"
+            - "StrictHostKeyChecking=no"
+            # Chrome Devtools Protocol
+            - "-L"
+            - "0.0.0.0:9222:127.0.0.1:9222"
+            - "privacyperfect@windows.host"
+          volumeMounts:
+            - name: {{ .Release.Name }}-ssh-tunnel-secrets
+              mountPath: /root/.ssh/id_ed25519_tunnel
+              subPath: id_ed25519_tunnel
+      volumes:
+        - name: {{ .Release.Name }}-ssh-tunnel-secrets
+          secret:
+            secretName: {{ .Release.Name }}-ssh-tunnel
+            defaultMode: 0400
+{{ end }}

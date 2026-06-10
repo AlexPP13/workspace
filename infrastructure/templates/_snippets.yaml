@@ -11,6 +11,15 @@ securityContext:
 {{ end }}
 {{ end }}
 
+{{ define "pod.hostAliases" }}
+{{ if eq .Values.environment "podman" }}
+hostAliases:
+  - ip: "172.18.80.1"
+    hostnames:
+      - "windows.host"
+{{ end }}
+{{ end }}
+
 {{ define "container.securityContext" }}
 {{ if eq .Values.environment "podman" }}
 securityContext:
