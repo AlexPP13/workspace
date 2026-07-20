@@ -32,7 +32,7 @@ directory that exists on your host.
 OpenCode and VSCodium also mount these host sockets:
 
 ```text
-/run/user/1000/podman/podman.sock
+/run/user/1000/podman/podman.sock 
 /run/user/1000/gcr/ssh
 ```
 

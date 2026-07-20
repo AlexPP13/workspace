@@ -1,11 +1,11 @@
 deployments:
   containers:
-    pullPolicy: IfNotPresent
-    # pullPolicy: Always
+    # pullPolicy: IfNotPresent
+    pullPolicy: Always
   volumes:
   volumeMounts:
     - name: development
-      mountPath: /home/alexstorm13/Development
+      mountPath: /mnt/c/Users/PrivacyPerfect/Development
 
 services:
   ant:
@@ -35,10 +35,10 @@ services:
     enabled: false
     image: docker.io/dbgate/dbgate:latest
   redis-insight:
-    enabled: true
+    enabled: false
     image: docker.io/redis/redisinsight:latest
   scalar:
-    enabled: true
+    enabled: false
     image: docker.io/scalarapi/api-reference:latest
   open-webui:
     enabled: false

@@ -40,10 +40,10 @@ spec:
           command: ["tini", "--"]
           args: ["codium", "serve-web", "--host", "0.0.0.0", "--port", "3000", "--without-connection-token"]
           env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
             - name: CONTAINER_HOST
-              value: unix:///run/podman.sock
-            - name: SSH_AUTH_SOCK
-              value: /run/sshd.sock
+              value: tcp://host.containers.internal:2375
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/core/.vscode-oss
@@ -70,10 +70,10 @@ spec:
               subPath: settings.json
               readOnly: true
 
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.wakatime.cfg
-              subPath: wakatime.cfg
-              readOnly: true
+            # - name: {{ .Release.Name }}-codium-secrets
+            #   mountPath: /home/core/.wakatime.cfg
+            #   subPath: wakatime.cfg
+            #   readOnly: true
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
@@ -83,12 +83,6 @@ spec:
             - name: {{ .name }}
               mountPath: /home/core/workspace/{{ .name }}
             {{ end }}
-
-            - name: sshd.sock
-              mountPath: /run/sshd.sock
-              readOnly: true
-            - name: podman.sock
-              mountPath: /run/podman.sock
 
       volumes:
         - name: {{ .Release.Name }}-codium-secrets
@@ -115,13 +109,4 @@ spec:
             path: {{ .mountPath }}
             type: Directory
         {{ end }}
-
-        - name: sshd.sock
-          hostPath:
-            path: /run/user/1000/gcr/ssh
-            type: Socket
-        - name: podman.sock
-          hostPath:
-            path: /run/user/1000/podman/podman.sock
-            type: Socket
 {{ end }}

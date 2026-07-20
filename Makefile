@@ -1,13 +1,22 @@
 .PHONY: kube play down workspace clean certificate
 
 NAMESPACE=workspace
-USERNS=--userns=keep-id:uid=1001,gid=0
+USERNS=--userns=host
+
+podman-machine-start:
+	@podman.exe machine start
+
+expose-podman-api:
+	@podman system service --time=0 tcp://0.0.0.0:2375
+
+fix-permissions:
+	@sudo chgrp -R 0 /mnt/c/Users/PrivacyPerfect/Development/
+	@sudo chmod -R g+rwX /mnt/c/Users/PrivacyPerfect/Development/
 
 # Generate deployment from Helm Chart
 kube:
 	@podman run -i --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure --entrypoint sh docker.io/alpine/helm:latest -c 'helm template ${NAMESPACE} --dry-run=client --values ./values.yaml . > ./kube.yaml.tmp && mv ./kube.yaml.tmp ./kube.yaml'
 
-# Run the deployment with Podman
 play:
 	@podman kube play --replace $(USERNS) ./infrastructure/kube.yaml
 	@GATEWAY_INFRA=$$(podman pod inspect --format '{{.InfraContainerID}}' workspace-gateway-pod); \

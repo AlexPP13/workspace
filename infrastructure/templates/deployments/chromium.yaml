@@ -48,8 +48,6 @@ spec:
             - name: {{ .Release.Name }}-chromium-chromium
               mountPath: /config
               subPath: config
-            - name: dri
-              mountPath: /dev/dri
         - name: devtools-proxy
           securityContext:
             runAsUser: 0
@@ -65,10 +63,6 @@ spec:
         - name: {{ .Release.Name }}-chromium-chromium
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-chromium-chromium
-        - name: dri
-          hostPath:
-            path: /dev/dri
-            type: Directory
         - name: {{ .Release.Name }}-chromium-config
           configMap:
             name: {{ .Release.Name }}-chromium
