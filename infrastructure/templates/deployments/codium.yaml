@@ -101,14 +101,14 @@ spec:
             # - name: development
             #   mountPath: /home/core/Development:z
 
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 3000
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 3000
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 3000
       volumes:
         - name: {{ .Release.Name }}-codium-secrets
           secret:

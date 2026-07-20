@@ -61,7 +61,8 @@ openclaw:
 	@podman exec -it workspace-openclaw-pod-openclaw bash
 
 connect-provider:
-	@podman run -it -p 1455:1455 -v ./infrastructure/secrets/opencode:/home/core/.local/share/opencode localhost/core:latest bash
+	@podman run -it -p 1455:1455  localhost/core:latest bash
+# 	@podman run -it -p 1455:1455 -v ./infrastructure/secrets/opencode:/home/core/.local/share/opencode localhost/core:latest bash
 
 wsl-ip:
 	@wsl.exe hostname -I | awk '{print $1}' | tr -d '\r'

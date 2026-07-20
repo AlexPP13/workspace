@@ -1,0 +1,81 @@
+{{ if has "openhands" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-openhands
+  labels:
+    app: {{ .Release.Name }}-openhands
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-openhands
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: {{ .Release.Name }}-openhands
+        deployment: {{ .Release.Name }}-openhands
+    spec:
+      containers:
+        - name: server
+          image: localhost/core:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          command: ["tini", "--"]
+          args: ["bunx", "agent-canvas", "--port", "3000"]
+          volumeMounts:
+            # - name: {{ .Release.Name }}-openhands-openhands
+            #   mountPath: /home/core/.local
+            #   subPath: .local
+            # - name: {{ .Release.Name }}-openhands-openhands
+            #   mountPath: /home/core/.cache
+            #   subPath: .cache
+            # - name: {{ .Release.Name }}-openhands-openhands
+            #   mountPath: /home/core/.config
+            #   subPath: .config
+
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/core/workspace/{{ . }}
+            {{ end }}
+
+            - name: {{ .Release.Name }}-openhands-configmaps
+              mountPath: /home/core/.config/opencode/opencode.json
+              subPath: opencode.json
+
+            - name: {{ .Release.Name }}-opencode-secrets
+              mountPath: /home/core/.local/share/opencode/auth.json
+              subPath: auth.json
+
+            # - name: {{ .Release.Name }}-openhands-configmaps
+            #   mountPath: /home/core/.config/openhands/openhands.json
+            #   subPath: openhands.json
+
+            # - name: {{ .Release.Name }}-openhands-secrets
+            #   mountPath: /home/core/.local/share/openhands/auth.json
+            #   subPath: auth.json
+
+      volumes:
+        - name: {{ .Release.Name }}-opencode-secrets
+          secret:
+            secretName: {{ .Release.Name }}-opencode
+            optional: true
+        - name: {{ .Release.Name }}-openhands-configmaps
+          configMap:
+            name: {{ .Release.Name }}-openhands
+            optional: true
+
+        - name: {{ .Release.Name }}-openhands-openhands
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-openhands-openhands
+
+        {{ range .Values.deployments.volumes }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ . }}
+        {{ end }}
+{{ end }}

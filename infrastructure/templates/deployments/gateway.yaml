@@ -138,6 +138,8 @@ spec:
                 path: openclaw.conf.template
               - key: opencode.conf
                 path: opencode.conf.template
+              - key: openhands.conf
+                path: openhands.conf.template              
               - key: redis-insight.conf
                 path: redis-insight.conf.template
               - key: website.conf
