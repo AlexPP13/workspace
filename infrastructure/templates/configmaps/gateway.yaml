@@ -13,13 +13,9 @@ data:
   ssl.conf: |
 {{ .Files.Get "configs/gateway/ssl.conf" | nindent 4 }}
 
-{{ if .Values.services.ant.enabled }}
-  ant.conf: |
-{{ .Files.Get "configs/gateway/ant.conf" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.appfusion.enabled }}
-  appfusion.conf: |
-{{ .Files.Get "configs/gateway/appfusion.conf" | nindent 4 }}
+{{ if .Values.services.pp.enabled }}
+  pp.conf: |
+{{ .Files.Get "configs/gateway/pp.conf" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.codium.enabled }}
   codium.conf: |

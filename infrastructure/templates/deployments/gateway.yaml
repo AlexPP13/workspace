@@ -115,13 +115,9 @@ spec:
             items:
               - key: default.conf
                 path: default.conf.template
-              {{ if .Values.services.ant.enabled }}
-              - key: ant.conf
-                path: ant.conf.template
-              {{ end }}
-              {{ if .Values.services.appfusion.enabled }}
-              - key: appfusion.conf
-                path: appfusion.conf.template
+              {{ if .Values.services.pp.enabled }}
+              - key: pp.conf
+                path: pp.conf.template
               {{ end }}
               {{ if .Values.services.codium.enabled }}
               - key: codium.conf

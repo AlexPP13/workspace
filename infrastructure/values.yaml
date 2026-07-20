@@ -8,9 +8,7 @@ deployments:
       mountPath: /mnt/c/Users/PrivacyPerfect/Development
 
 services:
-  ant:
-    enabled: true
-  appfusion:
+  pp:
     enabled: true
   codium:
     enabled: true
