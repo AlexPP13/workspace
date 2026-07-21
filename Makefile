@@ -19,6 +19,12 @@ login:
 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
 		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
+		ghcr.io/alexstorm1313/core:latest opencode mcp auth figma
+	@podman run --rm --network=host --user 1001:0 -it \
+		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
+		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
+		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
+		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
 		ghcr.io/alexstorm1313/core:latest opencode mcp auth rovo
 	@podman run --rm --network=host --user 1001:0 -it \
 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
