@@ -5,7 +5,7 @@ deployments:
   volumes:
   volumeMounts:
     - name: development
-      mountPath: /mnt/c/Users/PrivacyPerfect/Development
+      mountPath: /mnt/wsl/Development
 
 services:
   pp:
