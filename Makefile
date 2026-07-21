@@ -12,6 +12,7 @@ expose-podman-api:
 fix-permissions:
 	sudo chgrp -R 0 /mnt/wsl/Development/
 	sudo chmod -R g+rwX /mnt/wsl/Development/
+	sudo chmod -R g+x /mnt/wsl/Development/
 
 login:
 	@podman run --rm --network=host --user 1001:0 -it \
