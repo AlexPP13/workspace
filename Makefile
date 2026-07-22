@@ -1,7 +1,7 @@
 .PHONY: kube play down workspace clean certificate
 
 NAMESPACE=workspace
-USERNS=--userns=host
+USERNS=--userns=keep-id:uid=1001,gid=0 # Only works if podman runs rootless
 
 podman-machine-start:
 	@podman.exe machine start
@@ -10,8 +10,9 @@ expose-podman-api:
 	@podman system service --time=0 tcp://0.0.0.0:2375
 
 fix-permissions:
-	@sudo chgrp -R 0 /mnt/wsl/Development/
-	@sudo chmod -R g+rwX /mnt/wsl/Development/
+	sudo chgrp -R 0 /mnt/wsl/Development/
+	sudo chmod -R g+rwX /mnt/wsl/Development/
+	sudo chmod -R g+x /mnt/wsl/Development/
 
 login:
 	@podman run --rm --network=host --user 1001:0 -it \
