@@ -10,9 +10,9 @@ expose-podman-api:
 	@podman system service --time=0 tcp://0.0.0.0:2375
 
 fix-permissions:
-	sudo chgrp -R 0 /mnt/wsl/Development/
-	sudo chmod -R g+rwX /mnt/wsl/Development/
-	sudo chmod -R g+x /mnt/wsl/Development/
+	@sudo chgrp -R 0 /mnt/c/Users/PrivacyPerfect/Development/
+	@sudo chown -R 1000:0  /mnt/c/Users/PrivacyPerfect/Development/
+	@sudo chmod -R g+rwX /mnt/c/Users/PrivacyPerfect/Development/
 
 login:
 	@podman run --rm --network=host --user 1001:0 -it \
