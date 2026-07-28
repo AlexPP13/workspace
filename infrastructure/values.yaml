@@ -1,7 +1,7 @@
 deployments:
   containers:
-    # pullPolicy: IfNotPresent
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
+    # pullPolicy: Always
   volumes:
   volumeMounts:
     - name: development
@@ -10,12 +10,17 @@ deployments:
 services:
   pp:
     enabled: true
+  website:
+    enabled: true
   codium:
     enabled: true
     image: ghcr.io/alexstorm1313/core:latest
   chromium:
     enabled: true
     image: lscr.io/linuxserver/chromium:latest
+  epiphany:
+    enabled: false
+    image: localhost/epiphany:latest
   opencode:
     enabled: true
     image: ghcr.io/alexstorm1313/core:latest

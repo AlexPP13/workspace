@@ -17,6 +17,10 @@ data:
   pp.conf: |
 {{ .Files.Get "configs/gateway/pp.conf" | nindent 4 }}
 {{ end }}
+{{ if .Values.services.website.enabled }}
+  website.conf: |
+{{ .Files.Get "configs/gateway/website.conf" | nindent 4 }}
+{{ end }}
 {{ if .Values.services.codium.enabled }}
   codium.conf: |
 {{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}
@@ -28,6 +32,10 @@ data:
 {{ if .Values.services.dbgate.enabled }}
   dbgate.conf: |
 {{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}
+{{ end }}
+{{ if .Values.services.epiphany.enabled }}
+  epiphany.conf: |
+{{ .Files.Get "configs/gateway/epiphany.conf" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.ollama.enabled }}
   ollama.conf: |

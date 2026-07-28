@@ -119,6 +119,10 @@ spec:
               - key: pp.conf
                 path: pp.conf.template
               {{ end }}
+              {{ if .Values.services.website.enabled }}
+              - key: website.conf
+                path: website.conf.template
+              {{ end }}
               {{ if .Values.services.codium.enabled }}
               - key: codium.conf
                 path: codium.conf.template
@@ -130,6 +134,10 @@ spec:
               {{ if .Values.services.dbgate.enabled }}
               - key: dbgate.conf
                 path: dbgate.conf.template
+              {{ end }}
+              {{ if .Values.services.epiphany.enabled }}
+              - key: epiphany.conf
+                path: epiphany.conf.template
               {{ end }}
               {{ if .Values.services.ollama.enabled }}
               - key: ollama.conf

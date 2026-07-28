@@ -1,0 +1,98 @@
+# syntax=docker/dockerfile:1
+
+FROM ghcr.io/linuxserver/baseimage-selkies:debiantrixie
+
+ARG BUILD_DATE
+ARG VERSION
+
+LABEL build_version="Epiphany Selkies version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="your-name"
+
+ENV TITLE="GNOME Web" \
+    SELKIES_UI_TITLE="GNOME Web" \
+    PIXELFLUX_WAYLAND="true" \
+    EPIPHANY_CLI="" \
+    START_URL="https://example.com"
+
+RUN \
+    echo "**** install Epiphany and runtime packages ****" && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        epiphany-browser \
+        ca-certificates \
+        fonts-dejavu-core \
+        fonts-liberation \
+        fonts-noto-color-emoji \
+        gstreamer1.0-libav \
+        gstreamer1.0-plugins-base \
+        gstreamer1.0-plugins-good \
+        gstreamer1.0-plugins-bad \
+        gstreamer1.0-pulseaudio && \
+    echo "**** create application launch files ****" && \
+    mkdir -p \
+        /defaults \
+        /usr/local/bin && \
+    cat > /usr/local/bin/wrapped-epiphany <<'EOF'
+#!/usr/bin/env bash
+
+set -e
+
+# Clear stale WebKit state that can remain after an unclean shutdown.
+rm -rf \
+    "${HOME}/.cache/epiphany/WebKitCache" \
+    "${HOME}/.cache/epiphany/WebKitCache-*"
+
+epiphany_args=()
+
+# EPIPHANY_CLI uses one argument per line.
+#
+# Example:
+# EPIPHANY_CLI="--application-mode
+# --profile=/config/epiphany-profile"
+if [[ -n "${EPIPHANY_CLI:-}" ]]; then
+    while IFS= read -r argument; do
+        [[ -n "${argument}" ]] && epiphany_args+=("${argument}")
+    done <<< "${EPIPHANY_CLI}"
+fi
+
+exec /usr/bin/epiphany \
+    "${epiphany_args[@]}" \
+    "${START_URL:-https://example.com}"
+EOF
+
+RUN \
+    cat > /defaults/autostart <<'EOF'
+#!/usr/bin/env bash
+
+exec wrapped-epiphany
+EOF
+
+RUN \
+    cat > /defaults/autostart_wayland <<'EOF'
+#!/usr/bin/env bash
+
+export GDK_BACKEND=wayland
+export MOZ_ENABLE_WAYLAND=1
+
+exec wrapped-epiphany
+EOF
+
+RUN \
+    chmod 0755 \
+        /usr/local/bin/wrapped-epiphany \
+        /defaults/autostart \
+        /defaults/autostart_wayland && \
+    echo "**** cleanup ****" && \
+    apt-get autoclean && \
+    rm -rf \
+        /config/.cache \
+        /var/lib/apt/lists/* \
+        /var/tmp/* \
+        /tmp/*
+
+EXPOSE 3000
+
+VOLUME /config
+
+# Do not define ENTRYPOINT or CMD.
+# They are inherited from baseimage-selkies.

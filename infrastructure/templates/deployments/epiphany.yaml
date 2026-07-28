@@ -1,0 +1,53 @@
+{{ if .Values.services.epiphany.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-epiphany
+  labels:
+    app: {{ .Release.Name }}-epiphany
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-epiphany
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-epiphany
+    spec:
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p", "/mnt/{{ .Release.Name }}-epiphany-epiphany/config"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-epiphany-epiphany
+              mountPath: /mnt/{{ .Release.Name }}-epiphany-epiphany
+      containers:
+        - name: epiphany
+          # Override Podman's keep-id startup user so s6 can initialize the image.
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.services.epiphany.image }}
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: PUID
+              value: "1001"
+            - name: PGID
+              value: "0"
+            - name: PIXELFLUX_WAYLAND
+              value: "true"
+            - name: AUTO_GPU
+              value: "true"
+            - name: START_DOCKER
+              value: "false"
+            volumeMounts:
+              - name: {{ .Release.Name }}-epiphany-epiphany
+                mountPath: /config
+                subPath: config
+      volumes:
+        - name: {{ .Release.Name }}-epiphany-epiphany
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-epiphany-epiphany
+{{ end }}
