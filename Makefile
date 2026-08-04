@@ -14,6 +14,22 @@ fix-permissions:
 	@sudo chown -R 1000:0  /mnt/wsl/Development/
 	@sudo chmod -R g+rwX /mnt/wsl/Development/
 
+test-mcp:
+	curl -X POST https://api.figma.com/v1/oauth/mcp/register \
+		-H "Content-Type: application/json" \
+		-d '{
+			"client_name": "Claude Code (figma)",
+			"redirect_uris": ["http://127.0.0.1:19876/mcp/oauth/callback"],
+			"grant_types": ["authorization_code", "refresh_token"],
+			"response_types": ["code"],
+			"token_endpoint_auth_method": "none"
+		}'
+
+# 	"oauth": {
+#     	"clientId": "",
+#     	"clientSecret": ""
+#     }
+
 login:
 	@podman run --rm --network=host --user 1001:0 -it \
 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
@@ -21,18 +37,18 @@ login:
 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
 		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
 		ghcr.io/alexstorm1313/core:latest opencode mcp auth figma
-	@podman run --rm --network=host --user 1001:0 -it \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
-		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
-		ghcr.io/alexstorm1313/core:latest opencode mcp auth rovo
-	@podman run --rm --network=host --user 1001:0 -it \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
-		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
-		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
-		ghcr.io/alexstorm1313/core:latest opencode auth login --provider openai
+# 	@podman run --rm --network=host --user 1001:0 -it \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
+# 		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
+# 		ghcr.io/alexstorm1313/core:latest opencode mcp auth rovo
+# 	@podman run --rm --network=host --user 1001:0 -it \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.local,volume-subpath=.local \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.cache,volume-subpath=.cache \
+# 		--mount type=volume,src=$(NAMESPACE)-opencode-opencode,dst=/home/core/.config,volume-subpath=.config \
+# 		-v $(CURDIR)/infrastructure/configs/opencode/opencode.json:/home/core/.config/opencode/opencode.json:ro,Z \
+# 		ghcr.io/alexstorm1313/core:latest opencode auth login --provider openai
 
 # Generate deployment from Helm Chart
 kube:
@@ -45,6 +61,7 @@ play:
 	podman network connect \
 		--alias alex.pp.workspace-gateway-pod \
 		--alias wordpress.website.workspace-gateway-pod \
+		--alias vite.website.workspace-gateway-pod \
 		podman-default-kube-network $$GATEWAY_INFRA
 	@podman pod ls | grep ${NAMESPACE}
 
