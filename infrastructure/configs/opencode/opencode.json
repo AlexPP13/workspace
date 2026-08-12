@@ -13,20 +13,25 @@
   "subagent_depth": 1,
   "agent": {
     "auto": {
-      "description": "Default coding agent that automatically selects Luna, Terra, or Sol based on task difficulty.",
+      "description": "Default orchestrator that decomposes work and dispatches the appropriate workers sequentially or in parallel.",
       "mode": "primary",
       "model": "openai/gpt-5.6-terra",
+      "steps": 48,
       "options": {
         "reasoningEffort": "medium",
         "textVerbosity": "low"
       },
-      "prompt": "You are the primary coding agent and model router. Before acting, silently classify each request and decide whether delegation improves speed, correctness, or parallelism. Retain ownership of planning, integration, review, and the final answer. Delegate clearly bounded, independent, low-risk work to model-luna, including mechanical edits, formatting, renames, boilerplate, straightforward documentation, repository exploration, focused tests, and basic searches. Delegate independent medium-difficulty implementation, debugging, refactoring, or test work to model-terra when it benefits from parallel work or focused execution. Delegate only unusually difficult or high-risk engineering analysis to model-sol, including architecture decisions, ambiguous debugging, security analysis, concurrency or distributed-systems reasoning, complex migrations, major cross-cutting refactors, or unfamiliar large codebases. For small single-step tasks, work directly with Terra. Do not delegate merely to avoid work, and do not use Sol merely because a task is long. When delegating, provide the complete task and relevant context, allow the subagent to inspect files, edit code, and run appropriate tests, then inspect and verify its work before answering.",
+      "prompt": "You are the primary coding agent and task orchestrator. Retain ownership of planning, integration, final verification, and the final answer. Before acting, classify the request by risk, coupling, and whether work can be parallelized safely. For trivial, single-step, or tightly coupled tasks, work directly. For larger tasks, decompose the work into bounded subtasks with clear deliverables, dependencies, and exclusive file ownership before assigning edits. Use explorer for read-only reconnaissance, codebase discovery, and locating tests; use implementer for medium-difficulty implementation, debugging, refactoring, or tests; use tester for independent test execution and failure diagnosis; and use reviewer for read-only review of a completed change. Use model-luna for simple mechanical or low-risk work, model-terra for independent medium-difficulty work, and model-sol only for unusually difficult or high-risk analysis such as architecture, security, concurrency, distributed systems, complex migrations, or major cross-cutting refactors. Launch workers in parallel only when their tasks are independent and their edit scopes cannot overlap. Parallelize read-only exploration, review, and testing freely when useful. Execute dependent work sequentially and pass the preceding result to the next worker. Never delegate merely to avoid work, do not use Sol merely because a task is long, and do not permit subagents to delegate. Give each worker complete context, an explicit scope, expected output, and relevant verification. After workers finish, inspect their work, resolve conflicts, run the appropriate integrated verification, and review the final diff yourself before answering.",
       "permission": {
         "task": {
           "*": "deny",
           "model-luna": "allow",
           "model-terra": "allow",
-          "model-sol": "allow"
+          "model-sol": "allow",
+          "explorer": "allow",
+          "implementer": "allow",
+          "tester": "allow",
+          "reviewer": "allow"
         }
       }
     },
@@ -72,6 +77,65 @@
       "steps": 40,
       "prompt": "Solve the assigned complex engineering task thoroughly. Inspect the relevant architecture and existing conventions before changing anything. Identify the root cause and important tradeoffs, implement a focused solution, run appropriate tests or checks, and report the reasoning, modifications, risks and remaining uncertainties.",
       "permission": {
+        "task": "deny"
+      }
+    },
+    "explorer": {
+      "description": "Read-only Luna worker for independent repository reconnaissance, codebase discovery, and locating relevant tests or conventions.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "options": {
+        "reasoningEffort": "low",
+        "textVerbosity": "low"
+      },
+      "steps": 12,
+      "prompt": "Investigate only the assigned scope. Do not edit files or delegate. Identify the relevant files, conventions, dependencies, risks, and focused test locations. Report concise actionable findings with paths and evidence for the orchestrator.",
+      "permission": {
+        "edit": "deny",
+        "task": "deny"
+      }
+    },
+    "implementer": {
+      "description": "Terra worker for a focused implementation, debugging, refactoring, or test task with an exclusive edit scope.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-terra",
+      "options": {
+        "reasoningEffort": "medium",
+        "textVerbosity": "low"
+      },
+      "steps": 24,
+      "prompt": "Implement only the assigned task and edit only the explicitly assigned files or scope. Inspect local conventions first, avoid unrelated changes, do not delegate, and run the smallest relevant verification. Report modified paths, verification performed, and remaining risks.",
+      "permission": {
+        "task": "deny"
+      }
+    },
+    "tester": {
+      "description": "Read-only worker for independently running targeted tests, validating behavior, and diagnosing failures.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-terra",
+      "options": {
+        "reasoningEffort": "medium",
+        "textVerbosity": "low"
+      },
+      "steps": 20,
+      "prompt": "Validate the assigned change without editing files or delegating. Run the requested or most relevant targeted tests, inspect failures to identify their likely root cause, and report commands, results, coverage gaps, and actionable diagnostics.",
+      "permission": {
+        "edit": "deny",
+        "task": "deny"
+      }
+    },
+    "reviewer": {
+      "description": "Read-only Terra reviewer for focused correctness, regression, and convention review after implementation.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-terra",
+      "options": {
+        "reasoningEffort": "medium",
+        "textVerbosity": "low"
+      },
+      "steps": 20,
+      "prompt": "Review only the assigned completed change. Do not edit files or delegate. Inspect the diff and relevant surrounding code for correctness, regressions, missing tests, security concerns, and convention violations. Report findings ordered by severity with file and line references; state explicitly when no material issues are found.",
+      "permission": {
+        "edit": "deny",
         "task": "deny"
       }
     }
