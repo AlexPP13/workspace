@@ -14,7 +14,7 @@ server {
         resolver ${NGINX_LOCAL_RESOLVERS} valid=5s ipv6=off;
         resolver_timeout 2s;
 
-        set $upstream workspace-hermes-pod:9120;
+        set $upstream workspace-hermes-pod:3000;
         proxy_pass http://$upstream;
     }
 }
