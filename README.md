@@ -69,6 +69,18 @@ Environment or command-line overrides support `Always`, `IfNotPresent`, and `Nev
 ```bash
 make kube IMAGE_PULL_POLICY=Always
 ```
+### Workspace root on the Podman host
+
+Make passes `WORKSPACE_PATH` (default: `$(CURDIR)`) to Helm as
+`deployments.workspacePath`. OpenCode uses it to locate its host-backed config.
+If the checkout is at a different absolute path on the Podman host, use the
+same override when rendering and linting:
+
+```bash
+make kube WORKSPACE_PATH=/absolute/path/to/workspace
+make validate WORKSPACE_PATH=/absolute/path/to/workspace
+```
+
 ## Commands and effects
 
 | Command | Effect |

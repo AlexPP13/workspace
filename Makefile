@@ -2,7 +2,9 @@
 
 NAMESPACE=workspace
 USERNS=--userns=keep-id:uid=1001,gid=0
-IMAGE_PULL_POLICY?=IfNotPresent
+# IMAGE_PULL_POLICY?=IfNotPresent
+IMAGE_PULL_POLICY?=Always
+export WORKSPACE_PATH ?= $(CURDIR)
 
 # Generate deployment from Helm Chart
 kube:
@@ -13,12 +15,14 @@ kube:
 		--rm \
 		-v ./infrastructure:/infrastructure:Z \
 		-w /infrastructure \
+		--env WORKSPACE_PATH \
 		--entrypoint sh \
 		docker.io/alpine/helm:latest \
 		-c 'helm template $(NAMESPACE) \
 			--dry-run=client \
 			--values ./values.yaml \
 			--set-string deployments.containers.pullPolicy=$(IMAGE_PULL_POLICY) \
+			--set-literal "deployments.workspacePath=$$WORKSPACE_PATH" \
 			. > ./kube.yaml.tmp && mv ./kube.yaml.tmp ./kube.yaml' && \
 	printf '✅ Kubernetes manifest generated: infrastructure/kube.yaml\n'
 
@@ -37,6 +41,7 @@ validate:
 		docker.io/alpine/helm:latest \
 		lint . \
 		--values ./values.yaml \
+		--set-literal "deployments.workspacePath=$$WORKSPACE_PATH" \
 		--set-string deployments.containers.pullPolicy=$(IMAGE_PULL_POLICY) && \
 	printf '📋 Checking generated manifest schemas\n' && \
 	podman run \
