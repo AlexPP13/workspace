@@ -95,6 +95,7 @@ RUN --mount=type=cache,id=core-bun-user,target=/var/cache/bun,uid=${UID},gid=${G
 # Install shared agent skills without interactive prompts.
 RUN umask 0002 && npx --yes skills add juliobsz/skills --global --agent universal --skill '*' --yes
 RUN umask 0002 && npx --yes skills add payloadcms/skills --global --agent universal --skill '*' --yes
+RUN umask 0002 && npx --yes skills add https://github.com/anthropics/skills --global --agent universal --skill frontend-design --yes
 
 # SHELL setup
 RUN echo 'alias opencode="bunx --bun opencode"' >> ${HOME}/.bashrc
