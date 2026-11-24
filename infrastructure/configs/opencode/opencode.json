@@ -19,6 +19,9 @@
     "servers": {
       "chrome-devtools": {
         "type": "local",
+        "environment": {
+          "NODE_TLS_REJECT_UNAUTHORIZED": "1"
+        },
         "command": [
           "npx",
           "-y",
@@ -28,6 +31,14 @@
           "--experimental-devtools",
           "--category-experimental-webmcp"
         ]
+      },
+      "presswork": {
+        "type": "remote",
+        "url": "https://presswork.appfusion.workspace-gateway-pod:8443/api/mcp",
+        "oauth": false,
+        "headers": {
+          "Authorization": "Bearer 1b9f2e11-e0f1-44f9-8ca3-f60c3378aacb"
+        }
       }
     }
   }

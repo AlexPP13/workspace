@@ -9,11 +9,11 @@ deployments:
 
 services:
   chromium:
-    enabled: false
+    enabled: true
     image: lscr.io/linuxserver/chromium:latest
   codium:
-    enabled: false
-    image: localhost/core:latest
+    enabled: true
+    image: ghcr.io/alexstorm1313/codium:latest
   dbgate:
     enabled: false
     image: docker.io/dbgate/dbgate:latest
@@ -21,14 +21,14 @@ services:
     enabled: true
     image: docker.io/nginx:latest
   hermes:
-    enabled: true
-    image: localhost/core:latest
+    enabled: false
+    image: ghcr.io/alexstorm1313/hermes:latest
   ollama:
-    enabled: true
+    enabled: false
     image: docker.io/ollama/ollama:rocm
   opencode:
     enabled: true
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest
   redis-insight:
     enabled: false
     image: docker.io/redis/redisinsight:latest
@@ -37,4 +37,4 @@ services:
     image: docker.io/scalarapi/api-reference:latest
   workspace:
     enabled: true
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest

@@ -69,7 +69,6 @@ Environment or command-line overrides support `Always`, `IfNotPresent`, and `Nev
 ```bash
 make kube IMAGE_PULL_POLICY=Always
 ```
-
 ## Commands and effects
 
 | Command | Effect |

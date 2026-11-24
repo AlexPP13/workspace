@@ -43,6 +43,8 @@ spec:
               value: /run/sshd.sock
             - name: OPENCODE_PASSWORD
               value: opencode
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
           volumeMounts:
             - name: {{ .Release.Name }}-opencode-opencode
               mountPath: /home/core/.local
@@ -58,9 +60,10 @@ spec:
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
-            - name: {{ .Release.Name }}-opencode-configmaps
-              mountPath: /home/core/.config/opencode/opencode.json
-              subPath: opencode.json
+            - name: {{ .Release.Name }}-workspace-agents
+              mountPath: /home/core/.agents
+            - name: {{ .Release.Name }}-workspace-config
+              mountPath: /home/core/.config/opencode
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
@@ -86,15 +89,19 @@ spec:
           configMap:
             name: {{ .Release.Name }}-workspace
             optional: true
-
         - name: {{ .Release.Name }}-opencode-secrets
           secret:
             secretName: {{ .Release.Name }}-opencode
             optional: true
-        - name: {{ .Release.Name }}-opencode-configmaps
-          configMap:
-            name: {{ .Release.Name }}-opencode
-            optional: true
+
+        - name: {{ .Release.Name }}-workspace-agents
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-workspace-agents
+
+        - name: {{ .Release.Name }}-workspace-config
+          hostPath:
+            path: /home/core/Development/workspace/infrastructure/state/workspace/.config/opencode
+            type: Directory
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}

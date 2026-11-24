@@ -22,3 +22,6 @@
 .idea/
 *.tmproj
 .vscode/
+# OpenCode reads these paths from the host, not from the chart.
+state/workspace/
+configs/opencode/opencode.json
