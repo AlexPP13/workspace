@@ -1,12 +1,38 @@
+map $host $gateway_upstream {
+    # <pod>.<namespace>.<domain> -> <namespace>-<pod>-pod:3000
+    ~^(?<pod>[a-z0-9-]+)\.(?<namespace>[a-z0-9-]+)\. $namespace-$pod-pod:3000;
+}
+
 server {
     include /etc/nginx/includes/listen.conf;
 
-    server_name localhost fedora-workstation workspace-gateway-pod;
+    server_name _;
 
     include /etc/nginx/includes/ssl.conf;
 
     location / {
-        root   /usr/share/nginx/html;
-        index  index.html index.htm;
+        if ($gateway_upstream = "") {
+            return 404;
+        }
+
+        include /etc/nginx/includes/proxy.conf;
+
+        resolver ${NGINX_LOCAL_RESOLVERS} valid=5s ipv6=off;
+        resolver_timeout 2s;
+
+        proxy_pass http://$gateway_upstream;
+    }
+}
+
+server {
+    include /etc/nginx/includes/listen.conf;
+
+    server_name localhost fedora-workstation alexbrasser.com workspace-gateway-pod;
+
+    include /etc/nginx/includes/ssl.conf;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
     }
 }
