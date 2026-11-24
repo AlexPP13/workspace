@@ -27,8 +27,11 @@ RUN --mount=type=cache,id=codium-dnf5,target=/var/cache/libdnf5 \
     > /etc/yum.repos.d/vscodium.repo && \
     dnf -y --setopt=keepcache=1 install codium
 
-# Install extensions
-RUN codium --user-data-dir ${HOME}/.vscodium-server/data --extensions-dir ${HOME}/.vscodium-server/extensions --force \
+# Install extensions as the runtime user and fix group access in the same layer.
+USER ${UID}:${GID}
+
+RUN umask 0002 && \
+    codium --user-data-dir "${HOME}/.vscodium-server/data" --extensions-dir "${HOME}/.vscodium-server/extensions" --force \
     --install-extension rust-lang.rust-analyzer \
     --install-extension bradlc.vscode-tailwindcss \
     --install-extension tamasfe.even-better-toml \
@@ -39,7 +42,6 @@ RUN codium --user-data-dir ${HOME}/.vscodium-server/data --extensions-dir ${HOME
     --install-extension ms-kubernetes-tools.vscode-kubernetes-tools \
     # --install-extension HashiCorp.terraform \
     --install-extension usernamehw.errorlens && \
-    chown -R "${UID}:${GID}" "${HOME}/.vscodium-server" && \
     chmod -R g=u "${HOME}/.vscodium-server"
 
 USER ${UID}

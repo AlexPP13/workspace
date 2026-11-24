@@ -15,8 +15,10 @@ ENV HERMES_RUNTIME_DIR=/opt/hermes/tools
 
 USER root
 
-# Hermes locks and rebuilds its web UI inside the installation directory.
-RUN bash -o pipefail -c 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --dir /opt/hermes --non-interactive' && \
+# The installer stages files in /opt; fix ownership in the install layer.
+# Keep the installation writable for Hermes' web UI rebuilds.
+RUN umask 0002 && \
+    bash -o pipefail -c 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --dir /opt/hermes --non-interactive' && \
     chown -R "${UID}:${GID}" /opt/hermes "${HOME}/.hermes" && \
     chmod -R g=u /opt/hermes
 
