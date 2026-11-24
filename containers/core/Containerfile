@@ -1,0 +1,108 @@
+FROM quay.io/fedora/fedora:latest
+
+ARG USER=core
+ARG UID=1001
+ARG GID=0
+ARG HOME=/home/${USER}
+
+LABEL name="AlexStorm1313/core" \
+    vendor="AlexStorm1313" \
+    version="0.0.1" \
+    release="1" \
+    summary="Container image used as a base layer" \
+    description="Container image used as a base layer"
+
+# Set ENV variables
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV HOME=${HOME}
+ENV SHELL=/bin/bash
+ENV PATH=${HOME}/.cargo/bin:${HOME}/.bun/bin:${HOME}/.local/bin:${PATH}
+ENV HERMES_RUNTIME_DIR=/opt/hermes/tools
+
+RUN groupadd -g ${UID} ${USER} && \
+    useradd -u ${UID} -g ${UID} -m -s $SHELL ${USER}
+
+# Bootstrap the RPM repositories; the download cache is not part of the image.
+RUN --mount=type=cache,id=core-dnf5,target=/var/cache/libdnf5 \
+    curl -fsSL https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm -o session-manager-plugin.rpm && \
+    dnf -y --setopt=keepcache=1 install ./session-manager-plugin.rpm && \
+    rm -f ./session-manager-plugin.rpm && \
+    # Register all repos first
+    # curl -fsSL https://rpm.releases.hashicorp.com/fedora/hashicorp.repo -o /etc/yum.repos.d/hashicorp.repo && \
+    dnf -y --setopt=keepcache=1 install dnf-plugins-core \
+    "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+    "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+
+# Update Fedora, then enable COPR and install the system packages.
+RUN --mount=type=cache,id=core-dnf5,target=/var/cache/libdnf5 \
+    dnf -y --setopt=keepcache=1 update && \
+    dnf -y --setopt=keepcache=1 copr enable atim/starship && \
+    dnf -y --setopt=keepcache=1 install \
+    awk \
+    awscli2 \
+    azure-cli \
+    bash-completion \
+    composer \
+    fira-code-fonts \
+    gcc \
+    git \
+    hostname \
+    libpq-devel \
+    nodejs \
+    npm \
+    oci-cli \
+    openssh-server \
+    opentofu \
+    php \
+    podman \
+    procps \
+    rsync \
+    rustup \
+    starship \
+    # terraform-ls \
+    tini \
+    unzip \
+    uv \
+    which
+
+# Keep the toolchain and installed binaries, but not Cargo's download caches.
+RUN rustup-init -y --profile=default --default-toolchain=nightly
+RUN --mount=type=cache,id=core-cargo-registry,target=${HOME}/.cargo/registry \
+    --mount=type=cache,id=core-cargo-git,target=${HOME}/.cargo/git \
+    cargo install --locked watchexec-cli && \
+    cargo install --locked bacon && \
+    cargo install --locked diesel_cli --no-default-features --features "postgres" && \
+    cargo install --locked cargo-lambda
+
+# Install Bun and OpenCode in separate layers. Keep Bun's downloads out of the image.
+RUN curl -fsSL https://bun.sh/install | sh
+RUN --mount=type=cache,id=core-bun,target=/var/cache/bun \
+    BUN_INSTALL_CACHE_DIR=/var/cache/bun bun install -g --trust @opencode/cli
+
+# Install shared agent skills without interactive prompts.
+RUN npx --yes skills add juliobsz/skills --global --agent universal --skill '*' --yes
+RUN npx --yes skills add payloadcms/skills --global --agent universal --skill '*' --yes
+
+# SHELL setup
+RUN echo 'alias opencode="bunx --bun opencode"' >> ${HOME}/.bashrc
+RUN echo 'eval "$(starship init bash)"' >> ${HOME}/.bashrc
+
+# Changing ownership and user rights to support following use-cases:
+# 1) running container on OpenShift, whose default security model
+#    is to run the container under random UID, but GID=0
+# 2) for working root-less container with UID=1001, which does not have
+#    to have GID=0
+# 3) for default use-case, that is running container directly on operating system,
+#    with default UID and GID (1001:0)
+# Supported combinations of UID:GID are thus following:
+# UID=1001 && GID=0
+# UID=<any>&& GID=0
+# UID=1001 && GID=<any>
+# Hermes locks and rebuilds the web UI in its checkout, even with a separate HERMES_HOME.
+RUN chown -R ${UID}:${GID} ${HOME} && \
+    chmod -R g=u ${HOME}
+
+# Set fixed non-root user for compatibility with Podman/Docker and Kubernetes
+USER ${UID}
+WORKDIR ${HOME}

@@ -1,0 +1,23 @@
+ARG CORE_IMAGE=localhost/core:latest
+FROM ${CORE_IMAGE}
+
+ARG UID=1001
+ARG GID=0
+
+LABEL name="AlexStorm1313/hermes" \
+    vendor="AlexStorm1313" \
+    version="0.0.1" \
+    release="1" \
+    summary="Hermes Agent image" \
+    description="Hermes Agent on the core image"
+
+ENV HERMES_RUNTIME_DIR=/opt/hermes/tools
+
+USER root
+
+# Hermes locks and rebuilds its web UI inside the installation directory.
+RUN bash -o pipefail -c 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --dir /opt/hermes --non-interactive' && \
+    chown -R "${UID}:${GID}" /opt/hermes "${HOME}/.hermes" && \
+    chmod -R g=u /opt/hermes
+
+USER ${UID}

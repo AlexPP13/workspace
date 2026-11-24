@@ -1,0 +1,45 @@
+ARG CORE_IMAGE=localhost/core:latest
+FROM ${CORE_IMAGE}
+
+ARG UID=1001
+ARG GID=0
+
+LABEL name="AlexStorm1313/codium" \
+    vendor="AlexStorm1313" \
+    version="0.0.1" \
+    release="1" \
+    summary="VSCodium workspace image" \
+    description="VSCodium and editor extensions on the core image"
+
+USER root
+
+# Install VSCodium from its RPM repository.
+RUN --mount=type=cache,id=codium-dnf5,target=/var/cache/libdnf5 \
+    printf '%s\n' \
+    '[gitlab.com_paulcarroty_vscodium_repo]' \
+    'name=gitlab.com_paulcarroty_vscodium_repo' \
+    'baseurl=https://paulcarroty.gitlab.io/vscodium-deb-rpm-repo/rpms/' \
+    'enabled=1' \
+    'gpgcheck=1' \
+    'repo_gpgcheck=1' \
+    'gpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg' \
+    'metadata_expire=1h' \
+    > /etc/yum.repos.d/vscodium.repo && \
+    dnf -y --setopt=keepcache=1 install codium
+
+# Install extensions
+RUN codium --user-data-dir ${HOME}/.vscodium-server/data --extensions-dir ${HOME}/.vscodium-server/extensions --force \
+    --install-extension rust-lang.rust-analyzer \
+    --install-extension bradlc.vscode-tailwindcss \
+    --install-extension tamasfe.even-better-toml \
+    --install-extension redhat.vscode-yaml \
+    --install-extension fill-labs.dependi \
+    --install-extension ms-toolsai.jupyter \
+    --install-extension ms-azuretools.vscode-docker \
+    --install-extension ms-kubernetes-tools.vscode-kubernetes-tools \
+    # --install-extension HashiCorp.terraform \
+    --install-extension usernamehw.errorlens && \
+    chown -R "${UID}:${GID}" "${HOME}/.vscodium-server" && \
+    chmod -R g=u "${HOME}/.vscodium-server"
+
+USER ${UID}

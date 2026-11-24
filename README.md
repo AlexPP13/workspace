@@ -6,7 +6,7 @@ starter. Helm only renders YAML; no Kubernetes cluster or Helm release is used.
 
 ## What's included
 
-- `containers/core`: container build sources (Git submodule).
+- `containers/`: build sources for Core, Hermes, and VSCodium.
 - `infrastructure/values.yaml`: service enablement, images, and shared values.
 - `infrastructure/templates/`: workloads, configuration, secrets, and security helpers.
 - `infrastructure/configs/` and `infrastructure/state/`: project configuration and state.
@@ -16,9 +16,19 @@ starter. Helm only renders YAML; no Kubernetes cluster or Helm release is used.
 The configured stack enables workspace, gateway, Hermes, Ollama, and OpenCode;
 other workload templates are available but disabled by default. This is **not an
 empty starter**. Review host paths, sockets, ports, images, credentials, GPU
-requirements, and service settings before running on another machine. Initialize
-the `containers/core` submodule if you need its build sources; images are not
-automatically built by the Makefile.
+requirements, and service settings before running on another machine.
+
+## Container images
+
+For local builds, run `make -C containers/core build` first. Then run
+`make -C containers/hermes build` or `make -C containers/codium build` to use
+`localhost/core:latest` as the base.
+
+The [GHCR workflow](.github/workflows/ghcr.yaml) publishes `core`, `hermes`, and
+`codium` under the repository owner's namespace. In CI, Hermes and VSCodium
+build from the exact Core image digest published in the same workflow run.
+For an existing GHCR package, grant this repository write access before the
+first publish and stop the old publisher from updating the same `latest` tag.
 
 ## Requirements
 
@@ -102,7 +112,7 @@ contain the prefix. Never remove resources solely on a broad prefix match.
 Edit chart sources rather than generated YAML. Keep credentials out of committed
 values and ConfigMaps. Ignore rules protect designated secret paths and generated
 manifests, not every possible secret location. Preserve existing deployed names,
-claims, submodule configuration, and local state when adapting the starter.
+claims, and local state when adapting the starter.
 
 Shared container security helpers retain `readOnlyRootFilesystem: false` for
 existing runtime compatibility, with privilege escalation disabled, capabilities
