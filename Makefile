@@ -1,6 +1,6 @@
 .PHONY: kube play gateway-alias down workspace resources validate tls certificate mkcert
 
-NAMESPACE=workspace
+NAMESPACE ?= workspace
 USERNS=--userns=keep-id:uid=1001,gid=0
 IMAGE_PULL_POLICY?=IfNotPresent
 # IMAGE_PULL_POLICY?=Always
@@ -60,30 +60,28 @@ play: down
 	podman pod ls | grep $(NAMESPACE) && \
 	printf '✅ %s started from infrastructure/kube.yaml\n' '$(NAMESPACE)'
 
-# Add a DNS alias to the running gateway only; reconnecting interrupts traffic.
-gateway-alias: export GATEWAY_ALIAS = $(ALIAS)
-gateway-alias: export GATEWAY_POD = $(NAMESPACE)-gateway-pod
+# Add a DNS alias to the shared gateway; reconnecting interrupts traffic.
+gateway-alias: export GATEWAY_ALIAS_PREFIX = $(ALIAS)
 gateway-alias:
 	@bash -ec '\
-		alias_name=$$GATEWAY_ALIAS; \
-		if [[ ! $$alias_name =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$$ ]]; then \
-			printf "Usage: make gateway-alias NAMESPACE=workspace ALIAS=alex.pp123.workspace-gateway-pod\n" >&2; \
+		prefix=$$GATEWAY_ALIAS_PREFIX; \
+		pod=workspace-gateway-pod; \
+		label="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"; \
+		alias_name=$$prefix.$$pod; \
+		if [[ ! $$prefix =~ ^$$label(\.$$label)*$$ || $${#alias_name} -gt 253 ]]; then \
+			printf "Usage: make gateway-alias ALIAS=some.thing (a lowercase DNS prefix)\n" >&2; \
 			exit 2; \
 		fi; \
 		network=podman-default-kube-network; \
-		infra=$$(podman pod inspect --format "{{.InfraContainerID}}" "$$GATEWAY_POD"); \
+		infra=$$(podman pod inspect --format "{{.InfraContainerID}}" "$$pod"); \
 		current=$$(podman inspect --format "{{with index .NetworkSettings.Networks \"$$network\"}}{{range .Aliases}}{{printf \"%s \" .}}{{end}}{{else}}-{{end}}" "$$infra"); \
 		if [[ $$current == - ]]; then \
-			printf "%s is not attached to %s\n" "$$GATEWAY_POD" "$$network" >&2; \
+			printf "%s is not attached to %s\n" "$$pod" "$$network" >&2; \
 			exit 1; \
 		fi; \
 		read -r -a aliases <<< "$$current"; \
 		alias_args=(); \
 		for existing in "$${aliases[@]}"; do \
-			if [[ $${existing,,} == $${alias_name,,} ]]; then \
-				printf "%s already has alias %s\n" "$$GATEWAY_POD" "$$alias_name"; \
-				exit 0; \
-			fi; \
 			alias_args+=(--alias "$$existing"); \
 		done; \
 		podman network disconnect "$$network" "$$infra"; \
@@ -92,7 +90,7 @@ gateway-alias:
 			podman network connect "$${alias_args[@]}" "$$network" "$$infra"; \
 			exit 1; \
 		fi; \
-		printf "Added alias %s to %s\n" "$$alias_name" "$$GATEWAY_POD"'
+		printf "Added alias %s to %s\n" "$$alias_name" "$$pod"'
 
 # Stop the deployment with Podman
 down:
