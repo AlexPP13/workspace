@@ -56,7 +56,7 @@ validate:
 play: down
 	@printf '🚀 Starting %s\n' '$(NAMESPACE)'; \
 	podman kube play $(USERNS) ./infrastructure/kube.yaml \
-		--network 'podman-default-kube-network:alias=alex.pp.workspace-gateway-pod' && \
+		--network 'podman-default-kube-network:alias=alex.pp123.workspace-gateway-pod' && \
 	printf '📋 Pods for %s\n' '$(NAMESPACE)' && \
 	podman pod ls | grep $(NAMESPACE) && \
 	printf '✅ %s started from infrastructure/kube.yaml\n' '$(NAMESPACE)'

@@ -32,13 +32,9 @@
           "--category-experimental-webmcp"
         ]
       },
-      "presswork": {
+      "figma": {
         "type": "remote",
-        "url": "https://presswork.appfusion.workspace-gateway-pod:8443/api/mcp",
-        "oauth": false,
-        "headers": {
-          "Authorization": "Bearer 1b9f2e11-e0f1-44f9-8ca3-f60c3378aacb"
-        }
+        "url": "https://mcp.figma.com/mcp"
       }
     }
   }
