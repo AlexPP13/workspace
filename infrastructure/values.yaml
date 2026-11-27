@@ -1,15 +1,15 @@
 deployments:
   volumes:
   volumeMounts:
-    - name: Development
-      mountPath: /home/core/Development
+    # - name: Development
+    #   mountPath: /home/core/Development
 
 services:
   chromium:
     enabled: true
     image: lscr.io/linuxserver/chromium:latest
   codium:
-    enabled: true
+    enabled: false
     image: ghcr.io/alexstorm1313/codium:latest
   dbgate:
     enabled: false

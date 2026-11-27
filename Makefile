@@ -55,8 +55,8 @@ validate:
 # Run with Podman
 play: down
 	@printf '🚀 Starting %s\n' '$(NAMESPACE)'; \
-	podman kube play $(USERNS) ./infrastructure/kube.yaml \
-		--network 'podman-default-kube-network:alias=website.appfusion.workspace-gateway-pod,alias=presswork.appfusion.workspace-gateway-pod' && \
+	podman kube play $(USERNS) ./infrastructure/kube.yaml
+# 		--network 'podman-default-kube-network:alias=website.appfusion.workspace-gateway-pod,alias=presswork.appfusion.workspace-gateway-pod' && \
 	printf '📋 Pods for %s\n' '$(NAMESPACE)' && \
 	podman pod ls | grep $(NAMESPACE) && \
 	printf '✅ %s started from infrastructure/kube.yaml\n' '$(NAMESPACE)'

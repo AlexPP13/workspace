@@ -73,11 +73,11 @@ spec:
 
         - name: authorized_keys
           hostPath:
-            path: /home/core/.ssh/authorized_keys
+            path: /home/pp/.ssh/authorized_keys
             type: File
         - name: id_ed25519.pub
           hostPath:
-            path: /home/core/.ssh/id_ed25519.pub
+            path: /home/pp/.ssh/id_ed25519.pub
             type: File
 
         - name: {{ .Release.Name }}-ssh
