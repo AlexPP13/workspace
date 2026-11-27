@@ -25,5 +25,8 @@ infrastructure/templates/secrets/*.yaml
 infrastructure/templates/secrets/hermes/hermes.yaml
 infrastructure/kube.yaml
 
+# OpenCode runtime credentials
+/infrastructure/state/workspace/.config/opencode/service.json
+
 # Certificates
 infrastructure/**/*.crt
