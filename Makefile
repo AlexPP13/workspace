@@ -2,8 +2,8 @@
 
 NAMESPACE=workspace
 USERNS=--userns=keep-id:uid=1001,gid=0
-# IMAGE_PULL_POLICY?=IfNotPresent
-IMAGE_PULL_POLICY?=Always
+IMAGE_PULL_POLICY?=IfNotPresent
+# IMAGE_PULL_POLICY?=Always
 export WORKSPACE_PATH ?= $(CURDIR)
 
 # Generate deployment from Helm Chart
