@@ -5,6 +5,9 @@
     { "action": "provider.use", "resource": "openai", "effect": "allow" }
   ],
   "model": "openai/gpt-6.2-sol",
+  "worktree": {
+    "directory": "/home/core/Projects/.worktrees"
+  },
   "compaction": {
     "auto": true
   },
